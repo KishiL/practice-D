@@ -8,6 +8,9 @@
 
 # univariate data preparation
 from numpy import array
+from keras.models import Sequential
+from keras.layers import LSTM
+from keras.layers import Dense
 
 # split a univariate sequence into samples
 def split_sequence(sequence, n_steps):
@@ -30,13 +33,22 @@ raw_seq = [10, 20, 30, 40, 50, 60, 70, 80, 90]
 n_steps = 3
 # split into samples
 X, y = split_sequence(raw_seq, n_steps)
-# summarize the data
-for i in range(len(X)):
-    print(X[i], y[i])
-
-
+# # summarize the data
+# for i in range(len(X)):
+#     print(X[i], y[i])
+# reshape from [samples, timesteps] into [samples, timesteps, features]
+n_features = 1
+X = X.reshape((X.shape[0],X.shape[1], n_features))
+# define model
 # Vanilla LSTM
 model = Sequential()
 model.add(LSTM(50, activation = 'relu', input_shape = (n_steps, n_features)))
 model.add(Dense(1))
 model.compile(optimizer = 'adam', loss = 'mse')
+# fit model
+model.fit(X, y, epochs = 200, verbose = 0)
+# demonstrate prediction
+x_input = array([70, 80, 90])
+x_input = x_input.reshape((1, n_steps, n_features))
+yhat = model.predict(x_input, verbose = 0)
+print(yhat)
